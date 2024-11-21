@@ -1,4 +1,11 @@
-import { View, StyleSheet, Alert, Text, FlatList } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  Alert,
+  Text,
+  FlatList,
+  useWindowDimensions,
+} from 'react-native';
 import Title from '../components/ui/Title';
 import { useEffect, useState } from 'react';
 import NumberContainer from '../components/game/NumberContainer';
@@ -24,7 +31,9 @@ let maxBoundary = 100;
 export default function GameScreen({ userNumber, onGameOver }) {
   const initialGuess = generateRandomBetween(1, 100, userNumber);
   const [currentGuess, setCurrentGuess] = useState(initialGuess);
-  const [guessRounds, setGuessRounds] = useState([]);
+  const [guessRounds, setGuessRounds] = useState([initialGuess]);
+
+  const { width, height } = useWindowDimensions();
 
   useEffect(() => {
     if (currentGuess === userNumber) {
@@ -72,9 +81,8 @@ export default function GameScreen({ userNumber, onGameOver }) {
 
   console.log(minBoundary, maxBoundary);
 
-  return (
-    <View style={styles.screen}>
-      <Title>Opponents Guess</Title>
+  let content = (
+    <>
       <NumberContainer>{currentGuess}</NumberContainer>
       <Card>
         <InstructionText style={styles.instructionText}>
@@ -86,6 +94,7 @@ export default function GameScreen({ userNumber, onGameOver }) {
               <MaterialCommunityIcons name="minus" size={24} />
             </PrimaryButton>
           </View>
+      
           <View style={styles.buttonContainer}>
             <PrimaryButton onPress={nextGuessHandler.bind(this, 'greater')}>
               <Entypo name="plus" size={24} />
@@ -93,6 +102,34 @@ export default function GameScreen({ userNumber, onGameOver }) {
           </View>
         </View>
       </Card>
+    </>
+  );
+
+  if (width > 500) {
+    content = (
+      <>
+       
+        <View style={styles.buttonsContainerWide}>
+          <View style={styles.buttonContainer}>
+            <PrimaryButton onPress={nextGuessHandler.bind(this, 'lower')}>
+              <MaterialCommunityIcons name="minus" size={24} />
+            </PrimaryButton>
+          </View>
+          <NumberContainer>{currentGuess}</NumberContainer>
+          <View style={styles.buttonContainer}>
+            <PrimaryButton onPress={nextGuessHandler.bind(this, 'greater')}>
+              <Entypo name="plus" size={24} />
+            </PrimaryButton>
+          </View>
+        </View>
+      </>
+    );
+  }
+
+  return (
+    <View style={styles.screen}>
+      <Title>Opponents Guess</Title>
+      {content}
       <View style={styles.listContainer}>
         <FlatList
           data={guessRounds}
@@ -113,6 +150,7 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     padding: 24,
+    alignItems: 'center',
   },
 
   instructionText: {
@@ -124,6 +162,11 @@ const styles = StyleSheet.create({
 
   buttonContainer: {
     flex: 1,
+  },
+
+  buttonsContainerWide: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 
   listContainer: {
